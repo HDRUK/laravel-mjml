@@ -17,7 +17,7 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "illuminate/support": "^11.4.0"
+        "illuminate/support": "^10.10.0"
     },
     "extra": {
         "laravel": {
