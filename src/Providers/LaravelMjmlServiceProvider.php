@@ -1,6 +1,6 @@
 <?php
 
-namespace Hdruk\LaravelMjml;
+namespace Hdruk\LaravelMjml\Providers;
 
 use Illuminate\Support\ServiceProvider;
 

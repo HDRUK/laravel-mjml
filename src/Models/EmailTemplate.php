@@ -1,6 +1,6 @@
 <?php
 
-namespace Hdruk\LaravelMjml;
+namespace Hdruk\LaravelMjml\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
