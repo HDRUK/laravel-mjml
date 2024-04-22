@@ -23,7 +23,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Hdruk\\LaravelMjml\\LaravelMjmlServiceProvider"
+                "Hdruk\\LaravelMjml\\Providers\\LaravelMjmlServiceProvider"
             ]
         }
     }
