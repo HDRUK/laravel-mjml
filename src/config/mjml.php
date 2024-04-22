@@ -17,6 +17,6 @@ return [
         ],
     ],
     'email' => [
-        'from_address' => env('EMAIL_FROM_ADDRESS'),
+        'from_address' => env('MAIL_FROM_ADDRESS'),
     ],
 ];
