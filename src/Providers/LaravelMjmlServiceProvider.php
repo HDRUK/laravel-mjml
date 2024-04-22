@@ -20,10 +20,10 @@ use Illuminate\Support\ServiceProvider;
     public function boot(): void
     {
         $this->publishes([
-            __DIR__ . './config/mjml.php' => config_path('mjml.php'),
+            __DIR__ . '../config/mjml.php' => config_path('mjml.php'),
         ]);
 
-        $this->loadMigrationsFrom(__DIR__ . './database/migrations');
+        $this->loadMigrationsFrom(__DIR__ . '../database/migrations');
     }
 
     /**
