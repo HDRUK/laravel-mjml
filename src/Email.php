@@ -2,6 +2,7 @@
 
 namespace Hdruk\LaravelMjml;
 
+use Str;
 use Config;
 
 use Hdruk\LaravelMjml\Models\EmailTemplate;
@@ -15,12 +16,15 @@ use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
+use Illuminate\Database\Eloquent\Model;
+
 use Illuminate\Support\Facades\Http;
 
 class Email extends Mailable
 {
     use Queueable, SerializesModels;
 
+    private $modelId = 0;
     private $template = null;
     private $replacements = [];
     public $subject = '';
@@ -28,9 +32,9 @@ class Email extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct(EmailTemplate $template, array $replacements)
+    public function __construct(int $modelId, EmailTemplate $template, array $replacements)
     {
-
+        $this->modelId = $modelId;
         $this->template = $template;
         $this->replacements = $replacements;
         $this->subject = $this->template['subject'];
@@ -87,16 +91,38 @@ class Email extends Mailable
 
     private function replaceBodyText(): void
     {
-        foreach ($this->replacements as $k => $v) {
-            $this->template['body'] = str_replace($k, $v, $this->template['body']);
-        }
+        // Find all placeholder strings
+        preg_match_all('/\[\[.*?\]\]/', $this->template['body'], $matches);
+        if (count($matches) > 0) {
+            foreach ($matches[0] as $m) {
+                if (strpos($m, '.') !== false) {
+                    $toReplace = $m;
+                    $m = str_replace('[[', '', str_replace(']]', '', $m));
+                    $parts = explode('.', $m);
+                    
+                    // Here the first part will be the Model name, whereas
+                    // the second is the field to replace with.
+                    
+                    // Create a new instance of the required class.
+                    $modelName = '\\App\\Models\\' . Str::studly(Str::singular($parts[0]));
+                    $model = $modelName::find($this->modelId);
 
-        if (isset($this->template['buttons'])) {
-            $buttons = json_decode($this->template['buttons'], true);
-            foreach ($buttons['replacements'] as $b) {
-                $this->template['body'] = str_replace($b['placeholder'], $b['actual'], $this->template['body']);
+                    // Now replace the placeholder within the body with the
+                    // required model field.
+                    $replacementString = $model->{$parts[1]};
+
+                    $this->template['body'] = str_replace($toReplace, $replacementString, $this->template['body']);
+                }
+
+                if (strpos($m, 'env(') !== false) {
+                    $toReplace = $m;
+                    $m = str_replace('[[env(', '', str_replace(')]]', '', $m));
+
+
+                    $this->template['body'] = str_replace($toReplace, env($m), $this->template['body']);
+                }
             }
-         }
+        }
     }
 
     private function replaceSubjectText(): void
