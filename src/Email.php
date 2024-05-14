@@ -4,7 +4,7 @@ namespace Hdruk\LaravelMjml;
 
 use Config;
 
-use Hdruk\LaravelMjml\EmailTemplate;
+use Hdruk\LaravelMjml\Models\EmailTemplate;
 use App\Exceptions\MailSendException;
 
 use Illuminate\Bus\Queueable;
