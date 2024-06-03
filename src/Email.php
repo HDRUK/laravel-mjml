@@ -25,6 +25,7 @@ class Email extends Mailable
     use Queueable, SerializesModels;
 
     private $modelId = 0;
+    private $byId = null;
     private $template = null;
     private $replacements = [];
     public $subject = '';
@@ -32,9 +33,10 @@ class Email extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct(int $modelId, EmailTemplate $template, array $replacements)
+    public function __construct(int $modelId, EmailTemplate $template, array $replacements, ?int $byId)
     {
         $this->modelId = $modelId;
+        $this->byId = $byId;
         $this->template = $template;
         $this->replacements = $replacements;
         $this->subject = $this->template['subject'];
@@ -104,8 +106,22 @@ class Email extends Mailable
                     // the second is the field to replace with.
                     
                     // Create a new instance of the required class.
-                    $modelName = '\\App\\Models\\' . Str::studly(Str::singular($parts[0]));
-                    $model = $modelName::find($this->modelId);
+                    $modelClass = Str::studly(Str::singular($parts[0]));
+                    $modelName = '\\App\\Models\\' . $modelClass;
+                    $model = null;
+
+                    switch($modelClass) {
+                        case 'User':
+                        case 'Issuer':
+                            $model = $modelName::find($this->modelId);
+                            break;
+                        case 'Organisation':
+                            $model = $modelName::find($this->byId);
+                            break;
+                        default:
+                            // Unknown model
+                            break;
+                    }
 
                     // Now replace the placeholder within the body with the
                     // required model field.
@@ -117,7 +133,6 @@ class Email extends Mailable
                 if (strpos($m, 'env(') !== false) {
                     $toReplace = $m;
                     $m = str_replace('[[env(', '', str_replace(')]]', '', $m));
-
 
                     $this->template['body'] = str_replace($toReplace, env($m), $this->template['body']);
                 }
