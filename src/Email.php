@@ -25,7 +25,6 @@ class Email extends Mailable
     use Queueable, SerializesModels;
 
     private $modelId = 0;
-    private $byId = null;
     private $template = null;
     private $replacements = [];
     public $subject = '';
@@ -33,10 +32,9 @@ class Email extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct(int $modelId, EmailTemplate $template, array $replacements, ?int $byId)
+    public function __construct(int $modelId, EmailTemplate $template, array $replacements)
     {
         $this->modelId = $modelId;
-        $this->byId = $byId;
         $this->template = $template;
         $this->replacements = $replacements;
         $this->subject = $this->template['subject'];
@@ -101,31 +99,18 @@ class Email extends Mailable
                     $toReplace = $m;
                     $m = str_replace('[[', '', str_replace(']]', '', $m));
                     $parts = explode('.', $m);
-                    
-                    // Here the first part will be the Model name, whereas
-                    // the second is the field to replace with.
-                    
-                    // Create a new instance of the required class.
-                    $modelClass = Str::studly(Str::singular($parts[0]));
-                    $modelName = '\\App\\Models\\' . $modelClass;
-                    $model = null;
 
-                    switch($modelClass) {
-                        case 'User':
-                        case 'Issuer':
-                            $model = $modelName::find($this->modelId);
-                            break;
-                        case 'Organisation':
-                            $model = $modelName::find($this->byId);
-                            break;
-                        default:
-                            // Unknown model
-                            break;
-                    }
+                    $replacementString = $this->replacements[$toReplace];
+                    
+                    try {
+                        //Get the model class by string name
+                        $modelClass = Str::studly(Str::singular($parts[0]));
+                        $modelName = '\\App\\Models\\' . $modelClass;
 
-                    // Now replace the placeholder within the body with the
-                    // required model field.
-                    $replacementString = $model->{$parts[1]};
+                        $model = $modelName::find($this->modelId);
+
+                        $replacementString = $model->{$parts[1]};
+                    } catch(e) {}
 
                     $this->template['body'] = str_replace($toReplace, $replacementString, $this->template['body']);
                 }
