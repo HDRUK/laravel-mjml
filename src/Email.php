@@ -100,7 +100,7 @@ class Email extends Mailable
                     $m = str_replace('[[', '', str_replace(']]', '', $m));
                     $parts = explode('.', $m);
 
-                    $replacementString = $this->replacements[$toReplace];
+                    $replacementString = '';
                     
                     try {
                         //Get the model class by string name
@@ -110,9 +110,11 @@ class Email extends Mailable
                         $model = $modelName::find($this->modelId);
 
                         $replacementString = $model->{$parts[1]};
-                    } catch(e) {}
-
-                    $this->template['body'] = str_replace($toReplace, $replacementString, $this->template['body']);
+                    } catch(e) {
+                        $replacementString = $this->replacements[$toReplace];
+                    } finally {
+                        $this->template['body'] = str_replace($toReplace, $replacementString, $this->template['body']);
+                    }
                 }
 
                 if (strpos($m, 'env(') !== false) {
