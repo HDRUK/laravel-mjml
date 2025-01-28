@@ -110,7 +110,7 @@ class Email extends Mailable
                         $model = $modelName::find($this->modelId);
 
                         $replacementString = $model->{$parts[1]};
-                    } catch(e) {
+                    } catch(\Exception $e) {
                         $replacementString = $this->replacements[$toReplace];
                     } finally {
                         $this->template['body'] = str_replace($toReplace, $replacementString, $this->template['body']);
