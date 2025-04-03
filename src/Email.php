@@ -38,7 +38,6 @@ class Email extends Mailable
         $this->template = $template;
         $this->replacements = $replacements;
         $this->subject = $this->template['subject'];
-        dump("in contsruct");
     }
 
     /**
