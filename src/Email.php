@@ -38,6 +38,7 @@ class Email extends Mailable
         $this->template = $template;
         $this->replacements = $replacements;
         $this->subject = $this->template['subject'];
+        dump("in contsruct");
     }
 
     /**
@@ -95,33 +96,36 @@ class Email extends Mailable
         preg_match_all('/\[\[.*?\]\]/', $this->template['body'], $matches);
         if (count($matches) > 0) {
             foreach ($matches[0] as $m) {
-                if (strpos($m, '.') !== false) {
-                    $toReplace = $m;
-                    $m = str_replace('[[', '', str_replace(']]', '', $m));
-                    $parts = explode('.', $m);
-
+                $toReplace = $m;
+                $cleaned = str_replace(['[[', ']]'], '', $m);
+    
+                if (strpos($cleaned, '.') !== false) {
+                    $parts = explode('.', $cleaned);
+    
                     $replacementString = '';
-                    
+    
                     try {
-                        //Get the model class by string name
+                        // Get the model class by string name
                         $modelClass = Str::studly(Str::singular($parts[0]));
                         $modelName = '\\App\\Models\\' . $modelClass;
-
+    
                         $model = $modelName::find($this->modelId);
-
-                        $replacementString = $model->{$parts[1]};
+    
+                        $replacementString = $model->{$parts[1]} ?? '';
                     } catch(\Exception $e) {
-                        $replacementString = $this->replacements[$toReplace];
-                    } finally {
-                        $this->template['body'] = str_replace($toReplace, $replacementString, $this->template['body']);
+                        $replacementString = $this->replacements[$toReplace] ?? '';
                     }
-                }
-
-                if (strpos($m, 'env(') !== false) {
-                    $toReplace = $m;
-                    $m = str_replace('[[env(', '', str_replace(')]]', '', $m));
-
-                    $this->template['body'] = str_replace($toReplace, env($m), $this->template['body']);
+                    $this->template['body'] = str_replace($toReplace, $replacementString, $this->template['body']);
+    
+                } elseif (strpos($cleaned, 'env(') === 0) {
+                    $envKey = str_replace(['env(', ')'], '', $cleaned);
+                    $this->template['body'] = str_replace($toReplace, env($envKey), $this->template['body']);
+    
+                } else {
+                    // Handle simple replacements like [[username]]
+                    $replacementString = $this->replacements[$toReplace] ?? '';
+                    $this->template['body'] = str_replace($toReplace, $replacementString, $this->template['body']);
+                    dump( $this->template['body']);
                 }
             }
         }
