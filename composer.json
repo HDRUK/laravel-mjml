@@ -1,30 +1,32 @@
 {
-    "name": "hdruk/laravel-mjml",
-    "description": "A Laravel extension to make use of the MJML API",
-    "type": "library",
-    "license": "MIT",
-    "autoload": {
-        "psr-4": {
-            "Hdruk\\LaravelMjml\\": "src/"
-        },
-        "classmap": ["src/"]
+  "name": "hdruk/laravel-mjml",
+  "description": "A Laravel extension to make use of the MJML API",
+  "type": "library",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "Hdruk\\LaravelMjml\\": "src/"
     },
-    "authors": [
-        {
-            "name": "Loki Sinclair",
-            "email": "loki.sinclair@hdruk.ac.uk"
-        }
-    ],
-    "minimum-stability": "dev",
-    "prefer-stable": true,
-    "require": {
-        "illuminate/support": "^11.0"
-    },
-    "extra": {
-        "laravel": {
-            "providers": [
-                "Hdruk\\LaravelMjml\\Providers\\LaravelMjmlServiceProvider"
-            ]
-        }
+    "classmap": [
+      "src/"
+    ]
+  },
+  "authors": [
+    {
+      "name": "Loki Sinclair",
+      "email": "loki.sinclair@hdruk.ac.uk"
     }
+  ],
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "require": {
+    "illuminate/support": "^10.0 || ^11.0"
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Hdruk\\LaravelMjml\\Providers\\LaravelMjmlServiceProvider"
+      ]
+    }
+  }
 }
