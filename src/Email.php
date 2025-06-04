@@ -25,6 +25,7 @@ class Email extends Mailable
     use Queueable, SerializesModels;
 
     private $modelId = 0;
+    private $address = null;
     private $template = null;
     private $replacements = [];
     public $subject = '';
@@ -32,9 +33,10 @@ class Email extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct(int $modelId, EmailTemplate $template, array $replacements)
+    public function __construct(int $modelId, EmailTemplate $template, array $replacements, string $address = null)
     {
         $this->modelId = $modelId;
+        $this->address = $address;
         $this->template = $template;
         $this->replacements = $replacements;
         $this->subject = $this->template['subject'];
@@ -73,7 +75,12 @@ class Email extends Mailable
 
     public function mjmlToHtml(): string
     {
-        $this->replaceBodyText();
+        // 
+        if ($this->address !== null) {
+            $this->replaceBodyTextSimple();
+        } else {
+            $this->replaceBodyText();
+        }
 
         $response = Http::withBasicAuth(
             Config::get('mjml.default.access.mjmlApiApplicationKey'),
@@ -87,6 +94,22 @@ class Email extends Mailable
         }
 
         throw new MailSendException('unable to contact mjml api - aborting');
+    }
+
+    private function replaceBodyTextSimple(): void
+    {
+        // Find all placeholder strings
+        preg_match_all('/\[\[.*?\]\]/', $this->template['body'], $matches);
+        if (count($matches) > 0) {
+            foreach ($matches[0] as $m) {
+                $toReplace = $m;
+                $cleaned = str_replace(['[[', ']]'], '', $m);
+    
+                // Handle simple replacements like [[username]]
+                $replacementString = $this->replacements[$toReplace] ?? '';
+                $this->template['body'] = str_replace($toReplace, $replacementString, $this->template['body']);
+            }
+        }
     }
 
     private function replaceBodyText(): void
@@ -124,7 +147,6 @@ class Email extends Mailable
                     // Handle simple replacements like [[username]]
                     $replacementString = $this->replacements[$toReplace] ?? '';
                     $this->template['body'] = str_replace($toReplace, $replacementString, $this->template['body']);
-                    dump( $this->template['body']);
                 }
             }
         }
