@@ -42,6 +42,11 @@ class Email extends Mailable
         $this->subject = $this->template['subject'];
     }
 
+    public function getSubject(): string
+    {
+        return $this->subject;
+    }
+
     /**
      * Get the message envelope.
      */
