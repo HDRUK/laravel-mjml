@@ -90,6 +90,7 @@ class Email extends Mailable
         $response = Http::post(Config::get('mjml.default.access.mjmlRenderUrl'), [
             'mjml' => $this->template['body'],
         ]);
+        \Log::info(json_encode($response));
 
         if ($response->successful()) {
             return $response->json()['html'];
