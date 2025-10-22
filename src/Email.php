@@ -87,11 +87,9 @@ class Email extends Mailable
             $this->replaceBodyText();
         }
 
-        \Log::info('MJML API Render URL: ', json_encode(Config::get('mjml.default.access.mjmlRenderUrl')));
         $response = Http::post(Config::get('mjml.default.access.mjmlRenderUrl'), [
             'mjml' => $this->template['body'],
         ]);
-        \Log::info('MJML API Response: ', json_encode($response));
 
         if ($response->successful()) {
             return $response->json()['html'];
