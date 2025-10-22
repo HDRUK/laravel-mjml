@@ -87,11 +87,8 @@ class Email extends Mailable
             $this->replaceBodyText();
         }
 
-        $response = Http::withBasicAuth(
-            Config::get('mjml.default.access.mjmlApiApplicationKey'),
-            Config::get('mjml.default.access.mjmlApiKey'))->post(
-                Config::get('mjml.default.access.mjmlRenderUrl'), [
-                    'mjml' => $this->template['body'],
+        $response = Http::post(Config::get('mjml.default.access.mjmlRenderUrl'), [
+            'mjml' => $this->template['body'],
         ]);
 
         if ($response->successful()) {
