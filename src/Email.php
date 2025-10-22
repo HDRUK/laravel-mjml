@@ -4,6 +4,7 @@ namespace Hdruk\LaravelMjml;
 
 use Str;
 use Config;
+use Exception;
 
 use Hdruk\LaravelMjml\Models\EmailTemplate;
 use App\Exceptions\MailSendException;
@@ -80,22 +81,28 @@ class Email extends Mailable
 
     public function mjmlToHtml(): string
     {
-        // 
-        if ($this->address !== null) {
-            $this->replaceBodyTextSimple();
-        } else {
-            $this->replaceBodyText();
+        try {
+            if ($this->address !== null) {
+                $this->replaceBodyTextSimple();
+            } else {
+                $this->replaceBodyText();
+            }
+
+            $response = Http::post(Config::get('mjml.default.access.mjmlRenderUrl'), [
+                'mjml' => $this->template['body'],
+            ]);
+
+            if ($response->successful()) {
+                return $response->json()['html'];
+            }
+
+            throw new MailSendException('Unable to contact MJML API - aborting');
+
+        } catch (MailSendException $e) {
+            throw $e;
+        } catch (Exception $e) {
+            throw new MailSendException('MJML conversion failed: ' . $e->getMessage());
         }
-
-        $response = Http::post(Config::get('mjml.default.access.mjmlRenderUrl'), [
-            'mjml' => $this->template['body'],
-        ]);
-
-        if ($response->successful()) {
-            return $response->json()['html'];
-        }
-
-        throw new MailSendException('unable to contact mjml api - aborting');
     }
 
     private function replaceBodyTextSimple(): void
