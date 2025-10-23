@@ -80,18 +80,14 @@ class Email extends Mailable
 
     public function mjmlToHtml(): string
     {
-        // 
         if ($this->address !== null) {
             $this->replaceBodyTextSimple();
         } else {
             $this->replaceBodyText();
         }
 
-        $response = Http::withBasicAuth(
-            Config::get('mjml.default.access.mjmlApiApplicationKey'),
-            Config::get('mjml.default.access.mjmlApiKey'))->post(
-                Config::get('mjml.default.access.mjmlRenderUrl'), [
-                    'mjml' => $this->template['body'],
+        $response = Http::post(Config::get('mjml.default.access.mjmlRenderUrl'), [
+            'mjml' => $this->template['body'],
         ]);
 
         if ($response->successful()) {
