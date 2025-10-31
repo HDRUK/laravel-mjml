@@ -65,7 +65,7 @@ class Email extends Mailable
      */
     public function build()
     {
-        return $this->html($this->mjmlToHtml());
+        return $this->html(str_replace(['font-size:0px;', 'font-size:0px'], '', $this->mjmlToHtml()));
     }
 
     /**
