@@ -6,7 +6,7 @@ use Str;
 use Config;
 
 use Hdruk\LaravelMjml\Models\EmailTemplate;
-use App\Exceptions\MailSendException;
+use Hdruk\LaravelMjml\Exceptions\MailSendException;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -33,7 +33,7 @@ class Email extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct(int $modelId, EmailTemplate $template, array $replacements, string $address = null)
+    public function __construct(int $modelId, EmailTemplate $template, array $replacements, ?string $address = null)
     {
         $this->modelId = $modelId;
         $this->address = $address;
