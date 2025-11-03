@@ -97,7 +97,7 @@ class Email extends Mailable
                 throw new Exception('MJML to HTML conversion failed: ' . $response->body());
             }
         } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+            throw new Exception('unable to contact mjml api - aborting: ' . $e->getMessage());
         }
     }
 
