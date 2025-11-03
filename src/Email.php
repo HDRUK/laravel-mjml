@@ -93,6 +93,8 @@ class Email extends Mailable
 
             if ($response->successful()) {
                 return $response->json()['html'];
+            } else {
+                throw new Exception('MJML to HTML conversion failed: ' . $response->body());
             }
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
