@@ -3,6 +3,7 @@
 namespace Hdruk\LaravelMjml\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Hdruk\LaravelMjml\Console\Commands\TestEmailTemplates;
 
 /**
  * This file is part of the Laravel MJML package.
@@ -24,6 +25,12 @@ use Illuminate\Support\ServiceProvider;
         ]);
 
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                TestEmailTemplates::class,
+            ]);
+        }
     }
 
     /**
