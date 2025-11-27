@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('email_templates', function (Blueprint $table) {
-            $table->text('buttons')->nullable()->default(null);
-        });
+        if (!Schema::hasColumn('email_templates', 'buttons')) {
+            Schema::table('email_templates', function (Blueprint $table) {
+                $table->text('buttons')->nullable()->default(null);
+            });
+        }
     }
 
     /**

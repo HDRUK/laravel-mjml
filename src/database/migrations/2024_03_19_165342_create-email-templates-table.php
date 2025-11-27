@@ -11,15 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('email_templates', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-            $table->softDeletes();
-            $table->string('identifier', 128);
-            $table->boolean('enabled')->default(true);
-            $table->longText('body');
-            $table->string('subject', 255);
-        });
+        if (!Schema::hasTable('email_templates')) {
+            Schema::create('email_templates', function (Blueprint $table) {
+                $table->id();
+                $table->timestamps();
+                $table->softDeletes();
+                $table->string('identifier', 128);
+                $table->boolean('enabled')->default(true);
+                $table->longText('body');
+                $table->string('subject', 255);
+            });
+        }
     }
 
     /**
