@@ -67,6 +67,11 @@ class Email extends Mailable
     {
         return $this->html(str_replace(['font-size:0px;', 'font-size:0px'], '', $this->mjmlToHtml()));
     }
+    
+    public function getRenderedHtml(): string
+    {
+        return $this->render();
+    }
 
     /**
      * Get the attachments for the message.
