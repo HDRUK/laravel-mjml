@@ -126,13 +126,8 @@ class SendGridEmail
     /**
      * Send email using current properties
      */
-    public function send(?array $params = null): self
+    public function send(): self
     {
-        // If params provided, merge with current properties
-        if ($params) {
-            $this->mergeParams($params);
-        }
-
         // Create email
         $email = $this->buildEmail();
 
@@ -145,28 +140,6 @@ class SendGridEmail
         $this->headers = $this->response->headers();
 
         return $this;
-    }
-
-    /**
-     * Merge params with current properties
-     */
-    protected function mergeParams(array $params): void
-    {
-        if (isset($params['to_email'])) {
-            $this->toEmail = $params['to_email'];
-        }
-        if (isset($params['to_name'])) {
-            $this->toName = $params['to_name'];
-        }
-        if (isset($params['subject'])) {
-            $this->subject = $params['subject'];
-        }
-        if (isset($params['html_content'])) {
-            $this->htmlContent = $params['html_content'];
-        }
-        if (isset($params['job_uuid'])) {
-            $this->jobUuid = $params['job_uuid'];
-        }
     }
 
     /**
@@ -186,12 +159,7 @@ class SendGridEmail
         $email->setSubject($this->subject);
 
         // Set content
-        if ($this->htmlContent) {
-            $email->addContent("text/html", $this->htmlContent);
-        }
-        if ($this->textContent) {
-            $email->addContent("text/plain", $this->textContent);
-        }
+        $email->addContent("text/html", $this->htmlContent);
 
         // Add job UUID if set
         if ($this->jobUuid) {
