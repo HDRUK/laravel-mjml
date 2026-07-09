@@ -29,18 +29,21 @@ class Email extends Mailable
     private $template = null;
     private $replacements = [];
     public $subject = '';
+    public string $threadId;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(int $modelId, EmailTemplate $template, array $replacements, ?string $address = null)
+    public function __construct(int $modelId, EmailTemplate $template, array $replacements, ?string $address = null, string $threadId = '')
     {
         $this->modelId = $modelId;
         $this->address = $address;
         $this->template = $template;
         $this->replacements = $replacements;
         $this->subject = $this->template['subject'];
+        $this->threadId = $threadId;
     }
+
 
     public function getSubject(): string
     {
@@ -65,7 +68,15 @@ class Email extends Mailable
      */
     public function build()
     {
-        return $this->html(str_replace(['font-size:0px;', 'font-size:0px'], '', $this->mjmlToHtml()));
+         \Log::info('laravel-mjml', [
+            'thread_id' => $this->threadId
+        ]);        
+        return $this
+            ->withSymfonyMessage(function ($message) {
+                $message->getHeaders()->addTextHeader('X-Thread-Id', $this->threadId);
+            })
+            ->html(str_replace(['font-size:0px;', 'font-size:0px'], '', $this->mjmlToHtml()));
+        // return $this->html(str_replace(['font-size:0px;', 'font-size:0px'], '', $this->mjmlToHtml()));
     }
     
     public function getRenderedHtml(): string
